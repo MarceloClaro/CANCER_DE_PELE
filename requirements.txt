@@ -79,7 +79,7 @@ pyrsistent
 python-dateutil
 pytz
 PyWavelets
-pywinpty==0.5.7
+
 
 pyzmq
 requests
