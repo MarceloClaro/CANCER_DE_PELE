@@ -8,7 +8,7 @@ from skimage.io import imread
 
 # Função para melhorar a imagem
 def melhorar_imagem(img):
-    img = img.reshape((1, 256, 256, 3)).astype(np.float32) / 255.
+    img = img.reshape((1, 256, 256, 3)).astype(float) / 255.
     sub = (modelo.predict(img)).flatten()
 
     for i in range(len(sub)):
