@@ -112,3 +112,4 @@ Werkzeug==1.0.1
 widgetsnbextension==3.5.1
 wrapt==1.12.1
 numpy==1.20
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
