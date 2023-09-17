@@ -6,11 +6,10 @@ from tensorflow.keras.models import load_model
 from skimage.transform import resize
 from skimage.io import imread
 
-def enhance(img):
-    # reshape(1, 256, 256, 1)
-    #sub = (model.predict(img.reshape(1,256,256,3))).flatten()
+# Função para melhorar a imagem
+def melhorar_imagem(img):
     img = img.reshape((1, 256, 256, 3)).astype(np.float32) / 255.
-    sub = (model.predict(img)).flatten()
+    sub = (modelo.predict(img)).flatten()
 
     for i in range(len(sub)):
         if sub[i] > 0.5:
@@ -19,71 +18,54 @@ def enhance(img):
             sub[i] = 0
     return sub
 
-def applyMask(img):
+# Função para aplicar uma máscara na imagem
+def aplicar_mascara(img):
     sub = img.reshape((1, 256, 256, 3)).astype(np.float32) / 255.
-    #sub = np.array(img.reshape(256, 256), dtype=np.uint8)
-    mask = np.array(enhance(sub).reshape(256, 256), dtype=np.uint8)
+    mask = np.array(melhorar_imagem(sub).reshape(256, 256), dtype=np.uint8)
     sub2 = img.reshape(256, 256, 3)
-    #sub2 = np.array(img.reshape(256, 256, 3), dtype=np.uint8)
-    res = cv2.bitwise_and(sub2, sub2, mask = mask)
+    res = cv2.bitwise_and(sub2, sub2, mask=mask)
 
     return res
 
-##############
-# Model Load #
-##############
+# Carregar o modelo
 @st.cache
-def load():
+def carregar_modelo():
     return load_model('ResU_net.h5')
-model = load()
 
+modelo = carregar_modelo()
 
-##############
-# Side Bar   #
-##############
-with st.sidebar.header('Upload your Skin Image'):
-    upload_file = st.sidebar.file_uploader('Choose your Skin Image', type=['jpg', 'jpeg', 'png'])
+# Barra lateral
+with st.sidebar.header('Carregue sua Imagem de Pele'):
+    upload_file = st.sidebar.file_uploader('Escolha sua Imagem de Pele', type=['jpg', 'jpeg', 'png'])
 
+# Título da página
+st.write('# 🧠Segmentação de Lesões na Pele🧠')
+st.write('Este site foi criado por Crinex. O código do site e da segmentação está no Github. Se você deseja usar este código, faça um Fork e use.🤩🤩')
+st.write('📕 Github: https://github.com/crinex/Skin-Lesion-Segmentation-Streamlit 📕')
 
-##############
-# Page Title #
-##############
-st.write('# 🧠Skin Lesion Segmentation🧠')
-st.write('This Website was created by Crinex. The code for the Website and Segmentation is in the Github. If you want to use this Code, please Fork and use it.🤩🤩')
-st.write('📕 Github:https://github.com/crinex/Skin-Lesion-Segmentation-Streamlit 📕')
-
-
-###############
-# Main Screen #
-###############
+# Tela principal
 col1, col2, col3 = st.beta_columns(3)
 with col1:
-    st.write('### Original Image')
+    st.write('### Imagem Original')
     img = imread(upload_file)
     img = resize(img, (256, 256))
     preview_img = resize(img, (256, 256))
     st.image(preview_img)
 
-col2.write('### Button')
-clicked = col2.button('Segment!!')
-clicked2 = col2.button('Predict Image')
+col2.write('### Botão')
+clicked = col2.button('Segmentar!!')
+clicked2 = col2.button('Prever Imagem')
 
 if clicked:
     x = img
-    #x = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    #x = x.reshape((1, 256, 256, 3)).astype(np.float32) / 255.
     x = np.reshape(x, (256, 256, 3))
-    #x = resize(x, (256, 256, 3))
-    #pred = model.predict(x).squeeze()
-    col3.write('### Segmentation Image')
-    mask_img = applyMask(x)
+    col3.write('### Imagem Segmentada')
+    mask_img = aplicar_mascara(x)
     col3.image(mask_img)
 
 if clicked2:
     x = img
-    #x = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     x = np.reshape(x, (256, 256, 3))
-    #x = resize(x, (256, 256, 1))
-    enhance_img = enhance(x).reshape(256, 256)
-    col3.write('### Prediction Image')
+    enhance_img = melhorar_imagem(x).reshape(256, 256)
+    col3.write('### Imagem de Previsão')
     col3.image(enhance_img)
